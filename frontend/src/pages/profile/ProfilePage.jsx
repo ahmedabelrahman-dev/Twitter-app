@@ -22,7 +22,6 @@ const ProfilePage = () => {
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
   const { username } = useParams();
-  const isMyProfile = true;
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });
 
@@ -46,6 +45,7 @@ const ProfilePage = () => {
       }
     },
   });
+  const isMyProfile = authUser._id === user?._id;
   const memberSinceDate = formatMemberSinceDate(user?.createdAt);
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
