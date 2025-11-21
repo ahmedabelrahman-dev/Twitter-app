@@ -8,6 +8,7 @@ import EditProfileModal from './EditProfileModal';
 import { formatMemberSinceDate } from '../../utils/date';
 
 import { POSTS } from '../../utils/db/dummy';
+import useFollow from '../../hooks/useFollow';
 
 import { FaArrowLeft } from 'react-icons/fa6';
 import { IoCalendarOutline } from 'react-icons/io5';
@@ -22,6 +23,7 @@ const ProfilePage = () => {
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
   const { username } = useParams();
+  const { follow, isPending } = useFollow();
 
   const { data: authUser } = useQuery({ queryKey: ['authUser'] });
 
@@ -45,8 +47,11 @@ const ProfilePage = () => {
       }
     },
   });
+
   const isMyProfile = authUser._id === user?._id;
   const memberSinceDate = formatMemberSinceDate(user?.createdAt);
+  const amIFollowing = authUser?.following.includes(user?._id);
+
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
     if (file) {
@@ -134,13 +139,15 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {isMyProfile && <EditProfileModal />}
+                {isMyProfile && <EditProfileModal authUser={authUser} />}
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => alert('Followed successfully')}
+                    onClick={() => follow(user?._id)}
                   >
-                    Follow
+                    {isPending && 'Loading...'}
+                    {!isPending && amIFollowing && 'Unfollow'}
+                    {!isPending && !amIFollowing && 'Follow'}
                   </button>
                 )}
                 {(coverImg || profileImg) && (
