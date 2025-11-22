@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.route.js';
@@ -11,6 +12,7 @@ import cookieParser from 'cookie-parser';
 import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config();
+const __dirname = path.resolve();
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -30,6 +32,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
+  app.get(/.*/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`server is running on PORT ${PORT} `);
